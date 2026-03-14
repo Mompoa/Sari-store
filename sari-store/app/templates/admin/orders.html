@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Orders - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="admin-header">
+    <h1>Order Management</h1>
+    <p>View and manage all customer orders</p>
+</div>
+
+{% if orders %}
+    <div class="orders-container">
+        {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-id">
+                        <h3>Order #{{ order.id }}</h3>
+                        <p class="order-date">{{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                    </div>
+                    <div class="order-total">
+                        <span class="total-label">Total:</span>
+                        <span class="total-amount">₱{{ "%.2f"|format(order.total_price) }}</span>
+                    </div>
+                </div>
+
+                <div class="order-details">
+                    <div class="detail-column">
+                        <h4>Customer Information</h4>
+                        <p><strong>Name:</strong> {{ order.customer_name }}</p>
+                        <p><strong>Email:</strong> {{ order.customer_email }}</p>
+                        <p><strong>Phone:</strong> {{ order.customer_phone }}</p>
+                        <p><strong>Address:</strong> {{ order.customer_address }}</p>
+                    </div>
+
+                    <div class="detail-column">
+                        <h4>Items Ordered</h4>
+                        <ul class="items-list">
+                            {% for item in order.items %}
+                                <li>
+                                    <span class="item-name">{{ item.product.name }}</span>
+                                    <span class="item-qty">x{{ item.quantity }}</span>
+                                    <span class="item-price">₱{{ "%.2f"|format(item.price) }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                {% if order.order_notes %}
+                    <div class="order-notes">
+                        <h4>Order Notes</h4>
+                        <p>{{ order.order_notes }}</p>
+                    </div>
+                {% endif %}
+
+                <div class="order-actions">
+                    <form method="POST" action="{{ url_for('admin.delete_order', order_id=order.id) }}" 
+                          style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
+                        <button type="submit" class="btn btn-danger">Delete Order</button>
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="no-data">
+        <p>No orders found yet.</p>
+    </div>
+{% endif %}
+{% endblock %}
